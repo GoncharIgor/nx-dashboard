@@ -24,7 +24,7 @@ nx run appName:serve
 `nx serve` will serve the default project
 
 
-## Create reacr library:
+## Create react library:
 nx g @nrwl/react:lib libName --directory=appName
 will generate library with shared components for specific project
 
@@ -56,9 +56,12 @@ e.g:
 Option 1:
 nx run-many --target=serve --projects=appName1,appName2 --parallel=true
 
+e.g:
+`nx run-many --target=serve --projects=store,api --parallel=true`
+
 Option 2:
 Add custom run command to project.json -> targets
-nx run store:serveAppAndApi
+`nx run store:serveAppAndApi`
 
 
 ## Dependencies visualization
