@@ -1,94 +1,100 @@
+## Tutorial:
+https://egghead.io/lessons/react-generate-a-new-react-app-with-nx
+
+## Tech Details
+All `node_modules` packages from all apps and libs are registered only in 1 high-level  `node_modules`
+Thus - we have only 1 global `package.json`
+It means - in all our apps we have 1 same shared version of any package
+
+nx.json - configuration of the workspace
+- taskRunners - run all CLI commands
 
 
-# NxDashboard
+## Styles
+Each project may have different css preprocessors (less, scss).
+You indicate them in the `nx.json` per project
 
-This project was generated using [Nx](https://nx.dev).
+## Create react app:
+yarn add @nrwl/react
+yarn nx g @nrwl/react:application appName
 
-<p style="text-align: center;"><img src="https://raw.githubusercontent.com/nrwl/nx/master/images/nx-logo.png" width="450"></p>
+Serve app:
+nx run appName:serve
 
-🔎 **Smart, Fast and Extensible Build System**
+`nx serve` will serve the default project
 
-## Adding capabilities to your workspace
 
-Nx supports many plugins which add capabilities for developing different types of applications and different tools.
+## Create reacr library:
+nx g @nrwl/react:lib libName --directory=appName
+will generate library with shared components for specific project
 
-These capabilities include generating applications, libraries, etc as well as the devtools to test, and build projects as well.
+// appProject - generates routing component in appName project and links it to libName library
+nx g @nrwl/react:lib libName --directory=appName --appProject=appName
 
-Below are our core plugins:
+--directory - creates a new folder inside `libs` one
 
-- [React](https://reactjs.org)
-  - `npm install --save-dev @nrwl/react`
-- Web (no framework frontends)
-  - `npm install --save-dev @nrwl/web`
-- [Angular](https://angular.io)
-  - `npm install --save-dev @nrwl/angular`
-- [Nest](https://nestjs.com)
-  - `npm install --save-dev @nrwl/nest`
-- [Express](https://expressjs.com)
-  - `npm install --save-dev @nrwl/express`
-- [Node](https://nodejs.org)
-  - `npm install --save-dev @nrwl/node`
+## Create react component
+nx g @nrwl/react:component header --project=projectNameFromWorkspaceJson
 
-There are also many [community plugins](https://nx.dev/community) you could add.
 
-## Generate an application
+## Create plain TS (not react) lib:
+nx g @nrwl/workspace:lib libName --directory=projectName
 
-Run `nx g @nrwl/react:app my-app` to generate an application.
+## Add storybook:
+nx g @nrwl/react:storybook-configuration appOrLibName --configureCypress --generateStories
 
-> You can use any of the plugins above to generate applications as well.
+--generateStories - will create stories for already existing components in the app/library
 
-When using Nx, you can create multiple applications and libraries in the same workspace.
+Run storybook:
+nx run projectName:storybook
+(storybook - new `target` from project.json)
 
-## Generate a library
+e.g:
+`nx run store-shared-ui:storybook`
 
-Run `nx g @nrwl/react:lib my-lib` to generate a library.
+## Projects parallel commands run
+Option 1:
+nx run-many --target=serve --projects=appName1,appName2 --parallel=true
 
-> You can also use any of the plugins above to generate libraries as well.
+Option 2:
+Add custom run command to project.json -> targets
+nx run store:serveAppAndApi
 
-Libraries are shareable across libraries and applications. They can be imported from `@nx-dashboard/mylib`.
 
-## Development server
+## Dependencies visualization
+nx dep-graph
 
-Run `nx serve my-app` for a dev server. Navigate to http://localhost:4200/. The app will automatically reload if you change any of the source files.
+## Testing
+Storybook + Cypress - e2e testing of components in isolation
+CLI run:
+- serves components in storybook port 4400
+- cypress tests run, looking at storybook port
 
-## Code scaffolding
+Run Cypress tests:
+nx run store-shared-ui-e2e:e2e --watch
 
-Run `nx g @nrwl/react:component my-component --project=my-app` to generate a new component.
+For CI run:
+nx run store-shared-ui-e2e:e2e --headless
+
+
+Run jest:
+nx run appName:test
 
 ## Build
-
-Run `nx build my-app` to build the project. The build artifacts will be stored in the `dist/` directory. Use the `--prod` flag for a production build.
-
-## Running unit tests
-
-Run `nx test my-app` to execute the unit tests via [Jest](https://jestjs.io).
-
-Run `nx affected:test` to execute the unit tests affected by a change.
-
-## Running end-to-end tests
-
-Run `nx e2e my-app` to execute the end-to-end tests via [Cypress](https://www.cypress.io).
-
-Run `nx affected:e2e` to execute the end-to-end tests affected by a change.
-
-## Understand your workspace
-
-Run `nx graph` to see a diagram of the dependencies of your projects.
-
-## Further help
-
-Visit the [Nx Documentation](https://nx.dev) to learn more.
+nx run appName:build --configuration=production
+or
+nx build appName --configuration=production
 
 
+## Optimization 
+- Affected commands
+If 1 lib/app was changed - only related elements of the tree will be updated and rebuilt, not whole monorepo
+- Computation caching
+Lives in node_modules/.cache
+can be stored in nx cloud 
 
-## ☁ Nx Cloud
-
-### Distributed Computation Caching & Distributed Task Execution
-
-<p style="text-align: center;"><img src="https://raw.githubusercontent.com/nrwl/nx/master/images/nx-cloud-card.png"></p>
-
-Nx Cloud pairs with Nx in order to enable you to build and test code more rapidly, by up to 10 times. Even teams that are new to Nx can connect to Nx Cloud and start saving time instantly.
-
-Teams using Nx gain the advantage of building full-stack applications with their preferred framework alongside Nx’s advanced code generation and project dependency graph, plus a unified experience for both frontend and backend developers.
-
-Visit [Nx Cloud](https://nx.app/) to learn more.
+## Best practices
+- The more code in libs - better. good stats: 20% - apps, 80% - libs
+Reasons:
+- reusability
+- bounded contexts (what is public and what is private; speeds up compilation)

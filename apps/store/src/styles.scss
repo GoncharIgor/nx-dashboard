@@ -1,0 +1,13 @@
+/* You can add global styles to this file, and also import other style files */
+
+body {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+// this class is used in libs/feature-game-detail component
+.container {
+  max-width: 800px;
+  margin: 50px auto;
+}
